@@ -1,14 +1,10 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
 #include <pthread.h>
-#include "../dijkstra.h"
-
+#include <semaphore.h>
 
 //
 // TODO: Definição dos semáforos (variaveis precisam ser globais)
@@ -31,7 +27,7 @@ int main(int argc, char ** argv)
     // threads dos filosofos
     pthread_t * tids;
 
-    int i;
+    long i;
 
     srand(time(NULL));
 
@@ -58,7 +54,7 @@ int main(int argc, char ** argv)
 
     //
     // TODO: Criação dos semáforos (aqui é quando define seus
-    // valores, usando a biblioteca dijkstra.h
+    // valores)
     // 
  
     // iniciando as threads dos filosofos
@@ -74,7 +70,7 @@ int main(int argc, char ** argv)
     }
     
     //
-    // TODO: Excluindo os semaforos (dijkstra.h)
+    // TODO: Excluindo os semaforos
     // 
 
     // liberando a memoria alocada
@@ -85,10 +81,11 @@ int main(int argc, char ** argv)
 
 void * filosofo(void * id)
 {
-    usleep(gera_rand(1000000));
-
     // convertendo o Id do filosofo para int
-    int i = (int)id;
+    long i = (long)id;
+    
+    printf("\t> Filosofo %d pensando\n",i);
+    usleep(gera_rand(1000000));
 
     // ordem dos chopsticks depende do id  
     int c1, c2;

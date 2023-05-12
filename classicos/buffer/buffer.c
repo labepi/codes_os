@@ -1,13 +1,10 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
 #include <pthread.h>
-#include "../dijkstra.h"
+#include <semaphore.h>
 
 //
 // TODO: Definição dos semáforos (variaveis precisam ser globais)
@@ -43,7 +40,8 @@ int main(int argc, char ** argv)
     // threads dos n produtores (vao ser alocadas dinamicamente)
     pthread_t *nprod;
 
-    int i;
+    // int i;
+    long i;
 
     if ( argc != 3 )
     {
@@ -62,7 +60,7 @@ int main(int argc, char ** argv)
 
     //
     // TODO: Criação dos semáforos (aqui é quando define seus
-    // valores, usando a biblioteca dijkstra.h
+    // valores)
     // 
     
     // gerando um buffer de N inteiros
@@ -96,7 +94,7 @@ int main(int argc, char ** argv)
     pthread_join(tcons, NULL);
 
     //
-    // TODO: Excluindo os semaforos (dijkstra.h)
+    // TODO: Excluindo os semaforos
     // 
 
     // liberando a memoria alocada
@@ -142,7 +140,9 @@ void * consumer()
         // verificando se o consumidor nao esta consumindo sujeira do buffer
         if (buffer[out] == -1)
         {
-            printf("==== ALERTA DO CONSUMIDOR ====\nPosicao %d estava vazia\n",in);
+            printf("==== ALERTA DO CONSUMIDOR ====\n");
+            printf("Posicao %d estava vazia\n",in);
+            printf("==============================\n");
         }
         
         // limpando o buffer nesta posição
@@ -167,7 +167,8 @@ void * producer(void * id)
     usleep(gera_rand(1000000));
 
     // recebendo od Id do produtor e convertendo para int
-    int i = (int)id;
+    // int i = (int)id;
+    long i = (long)id;
     
     // valor a ser produzido
     int produto;
@@ -177,6 +178,8 @@ void * producer(void * id)
     //
     // TODO: precisa bloquear até que tenha posicao disponível no buffer
     //
+
+
     printf("> Produtor %d entrou em ação!\n",i);
 
     // 
@@ -189,8 +192,9 @@ void * producer(void * id)
     // verificando se o produtor nao esta sobrescrevendo uma posicao
     if (buffer[in] != -1)
     {
-        printf("==== ALERTA DO PRODUTOR %d ====\nPosicao %d estava ocupada com o valor %d\n",
-                i,in,buffer[in]);
+        printf("==== ALERTA DO PRODUTOR %d ====\n", i);
+        printf("Posicao %d ocupada com o valor %d\n",in,buffer[in]);
+        printf("===============================\n");
     }
 
     // gravando no buffer

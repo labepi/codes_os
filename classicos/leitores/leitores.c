@@ -1,13 +1,10 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
 #include <pthread.h>
-#include "../dijkstra.h"
+#include <semaphore.h>
 
 // quantidade de leitores lendo
 int readcount = 0;
@@ -32,7 +29,7 @@ int main(int argc, char ** argv)
     // threads dos escritores
     pthread_t * te;
 
-    int i;
+    long i;
 
     srand(time(NULL));
 
@@ -44,7 +41,7 @@ int main(int argc, char ** argv)
 
     //
     // TODO: Criação dos semáforos (aqui é quando define seus
-    // valores, usando a biblioteca dijkstra.h
+    // valores)
     // 
  
     // num leitores
@@ -99,23 +96,43 @@ void * leitor(void * id)
     usleep(gera_rand(1000000));
 
     // convertendo o Id do leitor para int
-    int i = (int)id;
+    long i = (long)id;
+
+    // variavel interna à thread para armazenar o valor compartilhado
+    int shared_in;
+
+    printf("> Leitor %d tentando acesso\n",i);
 
     //
     // TODO: precisa fazer o controle de acesso à entrada do leitor
     //
     
-    printf("> Leitor %d tentando acesso\n",i);
+    printf("> Leitor %d conseguiu acesso\n",i);
+    readcount++;
 
+        
         // leitor acessando o valor de shared
-        printf("\t> Leitor %d acessando shared: %d - readcount: %d\n",
-                i,shared,readcount);
+        printf("\t> Leitor %d acessando\n", i);
+        shared_in = shared;
+        usleep(gera_rand(1000000));
+
+        printf("\t> Leitor %d - tmp: %d - shared: %d - readcount: %d\n",
+                i, shared_in, shared, readcount);
+
+        if (shared_in != shared)
+        {
+            printf("\t==== ALERTA DO LEITOR ====\n");
+            printf("\t> Valor interno diferente do compartilhado\n\tshared_in: %d - shared: %d\n",
+                shared_in, shared);
+            printf("\t==========================\n");
+        }
 
     //
     // TODO: precisa fazer a saída do leitor e liberação do acesso
     //
 
     printf("< Leitor %d liberando acesso\n",i);
+    readcount--;
 
 }
 
@@ -124,15 +141,23 @@ void * escritor(void * id)
     usleep(gera_rand(1000000));
     
     // convertendo o Id do leitor para int
-    int i = (int)id;
+    long i = (long)id;
+
+    printf("+ Escritor %d tentando acesso\n",i);
 
     //
     // TODO: precisa controlar o acesso do escritor ao recurso
     //
     
-    printf("+ Escritor %d tentando acesso\n",i);
-    
     printf("\t+ Escritor %d conseguiu acesso\n",i);
+
+    if (readcount > 0)
+    {
+        printf("==== ALERTA DO ESCRITOR ====\n");
+        printf("Readcount possui valor: %d\n",readcount);
+        printf("============================\n");
+    }
+
     int rnd = gera_rand(100);
     printf("\t+ Escritor %d gravando o valor %d em shared\n", i, rnd);
     usleep(gera_rand(1000000));
