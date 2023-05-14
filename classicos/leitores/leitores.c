@@ -81,7 +81,7 @@ int main(int argc, char ** argv)
     }
 
     //
-    // TODO: Excluindo os semaforos (dijkstra.h)
+    // TODO: Excluindo os semaforos
     // 
 
     // liberando a memoria alocada
