@@ -9,6 +9,7 @@ void* funcao_thread(void* arg)
     printf("\tNova thread criada com PID %d e TID %d\n", 
             getpid(), gettid());
     sleep(50);
+    printf("Thread com o ID %d finalizada.\n", gettid());
     return NULL;
 }
 
